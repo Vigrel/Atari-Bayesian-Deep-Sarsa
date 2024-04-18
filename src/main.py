@@ -42,7 +42,7 @@ def experiment(
     plt.xlabel("Episode", fontsize=14)
     plt.ylabel("Sum of rewards", fontsize=14)
     plt.grid(True)
-    plt.savefig(f"deepExpectedSarsa/imgs/{file_name}.png")
+    plt.savefig(f"src/imgs/{file_name}.png")
 
     show_one_episode(file_name, best_policy)
 

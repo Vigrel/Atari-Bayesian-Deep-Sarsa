@@ -39,4 +39,4 @@ def show_one_episode(file_name, policy, n_max_steps=200, seed=42):
             break
     env.close()
     anim = plot_animation(frames)
-    anim.save(f"deepExpectedSarsa/imgs/{file_name}.gif")
+    anim.save(f"src/imgs/{file_name}.gif")

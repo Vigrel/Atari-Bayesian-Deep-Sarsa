@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torch import nn, optim
 
-from deepExpectedSarsa.agent import Agent, EnvArgs
+from agent import Agent, EnvArgs
 
 
 class DeepExpectedSarsa(Agent):
