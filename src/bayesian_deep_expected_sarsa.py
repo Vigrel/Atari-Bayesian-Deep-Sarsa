@@ -82,9 +82,7 @@ class BayesianDeepExpectedSarsa(Agent):
             next_q = next_q_values[i]
             greedy_actions = np.sum(next_q == np.max(next_q))
             non_greedy_action_probability = epsilon / self.num_actions
-            greedy_action_probability = (
-                1 - epsilon
-            ) / greedy_actions + non_greedy_action_probability
+            greedy_action_probability = (1 - epsilon) / greedy_actions + non_greedy_action_probability
             expected_q = np.sum(next_q * greedy_action_probability)
             target_q = (
                 rewards[i]
