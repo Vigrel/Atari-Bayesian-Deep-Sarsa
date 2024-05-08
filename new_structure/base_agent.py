@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from stable_baselines3.common.vec_env import VecEnv
 
-from new_structure.models.q_network import QNetwork
+from models.q_network import QNetwork
 
 
 class Agent:
@@ -32,5 +32,11 @@ if __name__ == "__main__":
     atari = AtariEnviroment("BreakoutNoFrameskip-v4", 1)
     atari.stack_frames(4)
     obs = atari.env.reset()
-    device = torch.device("mps")
+    if torch.backends.mps.is_available():
+        device_name = "mps"
+    elif torch.cuda.is_available():
+        device_name = "cuda"
+    else:
+        device_name = "cpu"
+    device = torch.device(device_name)
     agent = Agent(atari.env, device, 8000, "teste")
