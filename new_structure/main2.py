@@ -1,7 +1,7 @@
 import torch
 from atari_enviroment import AtariEnviroment
 from experiments.bayesian_expected_sarsa import BayesianExpectedSarsa
-from data_models.experiment_args import ExperimentArgs
+from data_models.experiment_args import ExperimentArgs, BayesianExperimentArgs
 
 import logging
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ stack_frames = 4
 
 
 experiments = [BayesianExpectedSarsa]
-experiments_args = ExperimentArgs("BayesianExpectedSarsa")
+experiments_args = BayesianExperimentArgs("BayesianExpectedSarsa")
 if torch.backends.mps.is_available():
     device_name = "mps"
 elif torch.cuda.is_available():

@@ -34,7 +34,7 @@ class VBLinear(nn.Module):
         return kl
     '''
     
-    def kl_loss(self):
+    def KL(self):
         kl_weight = 0.5 * (self.weight_log_sig2_prior - self.weight_log_sig2 + (self.weight_log_sig2.exp() + (self.weight_mu_prior-self.weight_mu)**2) / self.weight_log_sig2_prior.exp() - 1.0)
         kl = kl_weight.sum()
         n = len(self.weight_mu.view(-1))
