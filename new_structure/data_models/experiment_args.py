@@ -20,16 +20,13 @@ class ExperimentArgs:
 @dataclass
 class BayesianExperimentArgs:
     experiment_name: str
-    buffer_size: int = 100
+    buffer_size: int = 200
     learning_rate: float = 1e-4
-    total_timesteps: int = 100000
-    start_e: int = 1
-    end_e: int = 0.01
-    exploration_fraction: float = 0.1
-    learning_starts: int = 100
-    train_frequency: int = 100
+    total_timesteps: int = 1000000
+    learning_starts: int = 50
+    train_frequency: int = 50
     gamma: float = 0.99
-    target_network_frequency: int = 100
+    target_network_frequency: int = 50
     tau: float = 1.0
-    batch_size: int = 50
+    batch_size: int = 200
 

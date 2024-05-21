@@ -3,6 +3,10 @@ from torch import nn, distributions
 from torch.nn import functional as F
 from layers.bayesian_layer import VBLinear
 
+import logging
+logger = logging.getLogger(__name__)
+
+debug = False
 
 class BayesianQNetwork(nn.Module):
 
@@ -39,6 +43,11 @@ class BayesianQNetwork(nn.Module):
         mu = y_output[:,0]
         logvar = y_output[:,1]
         #n = mu.size(dim=-1)
+        if debug:
+            logger.info(f'y_output ({y_output.shape})[{y_output.type()}]')
+            logger.info(f'y_target ({y_target.shape})[{y_target.type()}]')
+            logger.info(f'Mu ({mu.shape})[{mu.type()}]')
+            logger.info(f'logvar ({logvar.shape})[{logvar.type()}]')
         elbo = (logvar + (y_target-mu).pow(2)/logvar.exp()).sum() + self.KL_loss() 
         return elbo
 

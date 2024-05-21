@@ -75,6 +75,10 @@ class BayesianExpectedSarsa(Agent):
             
             self.rb.add(obs, next_obs, actions, rewards, dones, infos)
 
+            if global_step == 0:
+                input_tensor_test = torch.Tensor(next_obs).permute(0, 3, 1, 2).to(self.device)
+                logger.info(f'Next_obs 0 ({input_tensor_test.shape })[{input_tensor_test.type()}]')
+
             obs = next_obs
 
             if global_step >= self.args.learning_starts:
@@ -82,13 +86,13 @@ class BayesianExpectedSarsa(Agent):
                     data = self.rb.sample(self.args.batch_size)
                     data_next_obs = torch.Tensor(data.next_observations).permute(
                         0, 3, 1, 2
-                    )
-                    data_obs = torch.Tensor(data.observations).permute(0, 3, 1, 2)
+                    ).to(self.device,torch.float)
+                    data_obs = torch.Tensor(data.observations).permute(0, 3, 1, 2).to(self.device,torch.float)
 
                     #Calculate belman target
                     with torch.no_grad():
                         data_next_obs
-                        logger.info(f'Data_next_obs: {data_next_obs}')
+                        #logger.info(f'Data_next_obs ({data_next_obs.shape})[{data_next_obs.type()}]')
                         next_q_values = target_network(data_next_obs)[:,:,0]
                         expected_next_q_values = torch.mean(next_q_values, dim=1)
                         td_target = (
@@ -97,22 +101,29 @@ class BayesianExpectedSarsa(Agent):
                             * expected_next_q_values
                             * (1 - data.dones.flatten())
                         )
-                    old_val = self.model(data_obs)#.gather(1, data.actions).squeeze()
-                    
+                    old_val = self.model(data_obs)
+                    mean_val = old_val[:,:,0].gather(1, data.actions).squeeze()
+                    logstd_val = old_val[:,:,1].gather(1, data.actions).squeeze()
+                    old_val = torch.stack([mean_val, logstd_val],-1)
+
                     loss = self.model.ELBOloss(old_val, td_target)
 
-                    if global_step % 100 == 0:
-                        self.writer.add_scalar(
-                            "losses/td_loss", loss.item(), global_step
-                        )
-                        self.writer.add_scalar(
-                            "losses/q_values", torch.mean(old_val[:,:,0]).item(), global_step
-                        )
+                    
+                    self.writer.add_scalar(
+                        "losses/td_loss", loss.item(), global_step
+                    )
+                    self.writer.add_scalar(
+                        "losses/q_values", torch.mean(old_val[:,0]).item(), global_step
+                    )
 
-                        steps_per_sec = self.args.train_frequency / (
-                            time.time() - start_time
-                        )
-                        self.writer.add_scalar("charts/SPS", steps_per_sec, global_step)
+                    self.writer.add_scalar(
+                        "losses/q_values_std", torch.mean(old_val[:,1].exp()).item(), global_step
+                    )
+
+                    steps_per_sec = self.args.train_frequency / (
+                        time.time() - start_time
+                    )
+                    self.writer.add_scalar("charts/SPS", steps_per_sec, global_step)
 
                     prior_network.load_state_dict(self.model.state_dict())
 
@@ -133,15 +144,9 @@ class BayesianExpectedSarsa(Agent):
                     BayesianQNetwork.update_prior_bnn(self.model, prior_network)
                 
                     #Reset replay buffer
-                    self.rb = ReplayBuffer(
-                            self.args.buffer_size,
-                            self.envs.observation_space,
-                            self.envs.action_space,
-                            device,
-                            self.envs.num_envs,
-                            True,
-                            False,
-                        )
+                    logger.info(f'Replay Buffer size: {self.rb.size()}')
+                    self.rb.reset()
+                    #logger.info(f'Replay Buffer size: {self.rb.size()}')
 
         if True:
             model_path = (
