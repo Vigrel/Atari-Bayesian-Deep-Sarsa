@@ -1,11 +1,34 @@
-from torch.utils.tensorboard import SummaryWriter
 from typing import Callable
 
 import gymnasium as gym
+import numpy as np
 import torch
-from networks.q_network import QNetwork
-from networks.bayesian_q_network import BayesianQNetwork
 from make_env import make_env
+from networks.bayesian_q_network import BayesianQNetwork
+from networks.q_network import QNetwork
+from torch.utils.tensorboard import SummaryWriter
+
+
+def mid_evaluation(model, envs, num_episodes, device):
+    model.eval()
+
+    obs, _ = envs.reset()
+    episodic_returns = []
+    while len(episodic_returns) < num_episodes:
+        q_values = model(torch.Tensor(obs).to(device))
+        actions = torch.argmax(q_values, dim=1).cpu().numpy()
+
+        if actions.ndim > 1:
+            actions = actions[0][0]
+
+        next_obs, _, _, _, infos = envs.step(actions)
+        if "final_info" in infos:
+            for info in infos["final_info"]:
+                if "episode" not in info:
+                    continue
+                episodic_returns += [info["episode"]["r"]]
+        obs = next_obs
+    return np.mean(episodic_returns)
 
 
 def evaluate(

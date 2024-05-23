@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+from evaluate import mid_evaluation
 from networks.q_network import QNetwork
 
 
@@ -91,5 +92,13 @@ def dqn(envs, device, writer, args, rb):
                         args.tau * q_network_param.data
                         + (1.0 - args.tau) * target_network_param.data
                     )
-
+            if global_step % args.eval_frequency == 0:
+                mean_return = mid_evaluation(
+                    q_network, envs, args.eval_episodes, device
+                )
+                writer.add_scalar(
+                    "eval/mean_episodic_return",
+                    mean_return,
+                    global_step,
+                )
     return q_network

@@ -3,6 +3,7 @@ import time
 import numpy as np
 import torch
 import torch.optim as optim
+from evaluate import mid_evaluation
 from networks.bayesian_q_network import BayesianQNetwork
 
 
@@ -105,4 +106,14 @@ def bayesian_expected_sarsa(envs, device, writer, args, rb):
 
                 BayesianQNetwork.update_prior_bnn(q_network, prior_network)
                 rb.reset()
+
+            if global_step % args.eval_frequency == 0:
+                mean_return = mid_evaluation(
+                    q_network, envs, args.eval_episodes, device
+                )
+                writer.add_scalar(
+                    "eval/mean_episodic_return",
+                    mean_return,
+                    global_step,
+                )
     return q_network
