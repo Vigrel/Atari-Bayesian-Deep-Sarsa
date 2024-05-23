@@ -18,3 +18,5 @@ class ExperimentArgs:
     batch_size: int = 32
     seed: int = 42
     num_envs = 1
+    eval_episodes = 10
+    eval_frequency = 1000
