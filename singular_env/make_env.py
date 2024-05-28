@@ -11,8 +11,9 @@ from stable_baselines3.common.atari_wrappers import (
 def make_env(env_id, seed, run_name):
     def thunk():
         env = gym.make(env_id, render_mode="rgb_array")
-        env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-        # env = gym.make(env_id)
+        env = gym.wrappers.RecordVideo(
+            env, f"videos/{run_name}", episode_trigger=lambda x: x % 100 == 0
+        )
 
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env = NoopResetEnv(env, noop_max=30)
