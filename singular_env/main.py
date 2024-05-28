@@ -7,15 +7,19 @@ from run_experiment import run_experiment
 
 if __name__ == "__main__":
     algorithms = [dqn, ddqn, expected_sarsa, bayesian_expected_sarsa]
+    algorithms = [ddqn]
     envs = [
         "BreakoutNoFrameskip-v4",
         "SpaceInvadersNoFrameskip-v4",
         "FreewayNoFrameskip-v4",
     ]
+    envs = [
+        "BreakoutNoFrameskip-v4",
+    ]
 
     for alg in algorithms:
         for env in envs:
-            args = ExperimentArgs(env)
+            args = ExperimentArgs(env, total_timesteps=1000, learning_rate=100)
             if alg.__name__ == "bayesian_expected_sarsa":
                 args = ExperimentArgs(
                     env,
