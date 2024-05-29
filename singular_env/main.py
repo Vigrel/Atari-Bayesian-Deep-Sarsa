@@ -1,11 +1,12 @@
 from algorithms.bayesian_expected_sarsa import bayesian_expected_sarsa
 from algorithms.dqn import dqn
+from algorithms.ddqn import ddqn
 from algorithms.expected_sarsa import expected_sarsa
 from experiment_args import ExperimentArgs
 from run_experiment import run_experiment
 
 if __name__ == "__main__":
-    algorithms = [dqn, expected_sarsa, bayesian_expected_sarsa]
+    algorithms = [dqn, ddqn, expected_sarsa, bayesian_expected_sarsa]
     algorithms = [bayesian_expected_sarsa]
     envs = [
         "BreakoutNoFrameskip-v4",
