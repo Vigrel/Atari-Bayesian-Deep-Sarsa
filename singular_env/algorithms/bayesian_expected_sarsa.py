@@ -9,8 +9,9 @@ from networks.bayesian_q_network import BayesianQNetwork
 
 def best_action(model, device, state) -> np.ndarray:
     input_tensor = torch.Tensor(state)
-    q_values = model(input_tensor.to(device))
-    return torch.argmax(q_values[:, :, 0], dim=1).cpu().numpy()[0]
+    model_pred = model(input_tensor.to(device))
+    q_values = model_pred[:, :, 0] + model_pred[:, :, 1].sqrt() * torch.randn_like(model_pred[:, :, 0])
+    return torch.argmax(q_values, dim=1).cpu().numpy()[0]
 
 
 def bayesian_expected_sarsa(envs, device, writer, args, rb):
@@ -60,7 +61,6 @@ def bayesian_expected_sarsa(envs, device, writer, args, rb):
                 data_obs = torch.Tensor(data.observations).to(device, torch.float)
 
                 with torch.no_grad():
-                    data_next_obs
                     next_q_values = target_network(data_next_obs)[:, :, 0]
                     expected_next_q_values = torch.mean(next_q_values, dim=1)
                     td_target = (
@@ -107,6 +107,7 @@ def bayesian_expected_sarsa(envs, device, writer, args, rb):
                 BayesianQNetwork.update_prior_bnn(q_network, prior_network)
                 rb.reset()
 
+            
             if global_step % args.eval_frequency == 0:
                 mean_return = mid_evaluation(
                     q_network, envs, args.eval_episodes, device
@@ -116,4 +117,5 @@ def bayesian_expected_sarsa(envs, device, writer, args, rb):
                     mean_return,
                     global_step,
                 )
+
     return q_network
