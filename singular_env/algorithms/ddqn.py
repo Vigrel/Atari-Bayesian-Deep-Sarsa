@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+from evaluate import mid_evaluation
 from networks.q_network import QNetwork
 
 
@@ -61,18 +62,14 @@ def ddqn(envs, device, writer, args, rb):
             if global_step % args.train_frequency == 0:
                 data = rb.sample(args.batch_size)
                 with torch.no_grad():
-                    # Double DQN target calculation
-                    next_actions = q_network(data.next_observations).argmax(
-                        dim=1, keepdim=True
-                    )
-                    target_q_values = (
-                        target_network(data.next_observations)
-                        .gather(1, next_actions)
-                        .squeeze()
-                    )
-                    td_target = (
-                        data.rewards.flatten()
-                        + args.gamma * target_q_values * (1 - data.dones.flatten())
+                    # Double DQN update
+                    next_q_values = q_network(data.next_observations)
+                    next_actions = next_q_values.argmax(dim=1, keepdim=True)
+                    target_q_values = target_network(data.next_observations)
+                    target_max = target_q_values.gather(1, next_actions).squeeze()
+
+                    td_target = data.rewards.flatten() + args.gamma * target_max * (
+                        1 - data.dones.flatten()
                     )
                 old_val = q_network(data.observations).gather(1, data.actions).squeeze()
                 loss = F.mse_loss(td_target, old_val)
@@ -100,5 +97,13 @@ def ddqn(envs, device, writer, args, rb):
                         args.tau * q_network_param.data
                         + (1.0 - args.tau) * target_network_param.data
                     )
-
+            if global_step % args.eval_frequency == 0:
+                mean_return = mid_evaluation(
+                    q_network, envs, args.eval_episodes, device
+                )
+                writer.add_scalar(
+                    "eval/mean_episodic_return",
+                    mean_return,
+                    global_step,
+                )
     return q_network

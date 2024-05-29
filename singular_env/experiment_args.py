@@ -9,7 +9,7 @@ class ExperimentArgs:
     total_timesteps: int = 1000000
     start_e: int = 1
     end_e: int = 0.01
-    exploration_fraction: float = 0.15
+    exploration_fraction: float = 0.10
     learning_starts: int = 80000
     train_frequency: int = 4
     gamma: float = 0.99
@@ -19,4 +19,4 @@ class ExperimentArgs:
     seed: int = 42
     num_envs = 1
     eval_episodes = 10
-    eval_frequency = 1000
+    eval_frequency = 50000

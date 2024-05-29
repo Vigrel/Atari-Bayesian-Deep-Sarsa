@@ -51,7 +51,6 @@ def run_experiment(algorithm, args):
 
     episodic_returns = evaluate(
         model_path,
-        make_env,
         args.env_id,
         eval_episode=10,
         run_name=f"{run_name}-eval",
