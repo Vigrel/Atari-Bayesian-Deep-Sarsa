@@ -9,7 +9,8 @@ from networks.q_network import QNetwork
 from torch.utils.tensorboard import SummaryWriter
 
 
-def mid_evaluation(model, envs, num_episodes, device):
+def mid_evaluation(model, env_id, run_name, num_episodes, device):
+    envs = gym.vector.SyncVectorEnv([make_env(env_id, 0, run_name, True)])
     model.eval()
 
     obs, _ = envs.reset()
@@ -19,7 +20,7 @@ def mid_evaluation(model, envs, num_episodes, device):
         actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         if actions.ndim > 1:
-            actions = actions[0][0]
+            actions = [actions[0][0]]
 
         next_obs, _, _, _, infos = envs.step(actions)
         if "final_info" in infos:
@@ -51,7 +52,7 @@ def evaluate(
         actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         if actions.ndim > 1:
-            actions = actions[0][0]
+            actions = [actions[0][0]]
 
         next_obs, _, _, _, infos = envs.step(actions)
         if "final_info" in infos:
