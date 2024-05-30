@@ -97,8 +97,9 @@ def expected_sarsa(envs, device, writer, args, rb):
                         + (1.0 - args.tau) * target_network_param.data
                     )
             if global_step % args.eval_frequency == 0:
+                file = f"expected_sarsa/{args.env_id}/{global_step}"
                 mean_return = mid_evaluation(
-                    q_network, envs, args.eval_episodes, device
+                    q_network, args.env_id, file, args.eval_episodes, device
                 )
                 writer.add_scalar(
                     "eval/mean_episodic_return",
