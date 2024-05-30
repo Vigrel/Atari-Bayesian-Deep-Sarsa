@@ -39,10 +39,10 @@ class VBLinear(nn.Module):
         kl = kl_weight.sum()
         n = len(self.weight_mu.view(-1))
 
-        kl_bias = 0.5 * (self.bias_log_sig2_prior - self.bias_log_sig2 + (self.bias_log_sig2.exp() + (self.bias_mu_prior-self.bias_mu)**2) / (self.bias_log_sig2_prior.exp()) - 1.0 )
+        kl_bias = 0.5 * (self.bias_log_sig2_prior - self.bias_log_sig2 + (self.bias_log_sig2.exp() + (self.bias_mu_prior-self.bias_mu)**2) / (self.bias_log_sig2_prior.exp()) - 1.0)
         kl += kl_bias.sum()
         n += len(self.bias_mu.view(-1))
-        return kl/n
+        return kl
     
     def update_prior(self, newprior):
         self.weight_mu_prior.data = newprior.weight_mu.data.clone()
@@ -58,5 +58,7 @@ class VBLinear(nn.Module):
 
     def forward(self, input):
         output_mu = nn.functional.linear(input, self.weight_mu, self.bias_mu)
-        var_out = nn.functional.linear(input.pow(2), self.weight_log_sig2.exp(), self.bias_log_sig2.exp())
-        return output_mu + var_out.sqrt() * torch.randn_like(output_mu)
+        #var_out = nn.functional.linear(input.pow(2), self.weight_log_sig2.exp(), self.bias_log_sig2.exp())
+        var_out = nn.functional.linear(input.pow(2), self.weight_log_sig2.exp(), self.bias_log_sig2.exp()).log()
+        #return output_mu + var_out.sqrt() * torch.randn_like(output_mu)
+        return torch.stack((output_mu, var_out), -1)

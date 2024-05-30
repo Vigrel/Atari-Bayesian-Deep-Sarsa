@@ -1,8 +1,8 @@
-from torch import nn
+import torch.nn as nn
 
 
 class QNetwork(nn.Module):
-    def __init__(self, action_space_n: int):
+    def __init__(self, env):
         super().__init__()
         self.network = nn.Sequential(
             nn.Conv2d(4, 32, 8, stride=4),
@@ -14,7 +14,7 @@ class QNetwork(nn.Module):
             nn.Flatten(),
             nn.Linear(3136, 512),
             nn.ReLU(),
-            nn.Linear(512, action_space_n),
+            nn.Linear(512, env.single_action_space.n),
         )
 
     def forward(self, x):
