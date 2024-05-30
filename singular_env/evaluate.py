@@ -17,10 +17,11 @@ def mid_evaluation(model, env_id, run_name, num_episodes, device):
     episodic_returns = []
     while len(episodic_returns) < num_episodes:
         q_values = model(torch.Tensor(obs).to(device))
-        actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
-        if actions.ndim > 1:
-            actions = [actions[0][0]]
+        if q_values.ndim > 2:
+            q_values = q_values[:, :, 0]
+
+        actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         next_obs, _, _, _, infos = envs.step(actions)
         if "final_info" in infos:
@@ -49,10 +50,11 @@ def evaluate(
     episodic_returns = []
     while len(episodic_returns) < eval_episode:
         q_values = model(torch.Tensor(obs).to(device))
-        actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
-        if actions.ndim > 1:
-            actions = [actions[0][0]]
+        if q_values.ndim > 2:
+            q_values = q_values[:, :, 0]
+
+        actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         next_obs, _, _, _, infos = envs.step(actions)
         if "final_info" in infos:

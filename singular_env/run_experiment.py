@@ -53,17 +53,17 @@ def run_experiment(algorithm, args):
     model_path = f"runs/{run_name}.pth"
     torch.save(q_net.state_dict(), model_path)
 
-    episodic_returns = evaluate(
-        model_path,
-        args.env_id,
-        eval_episode=10,
-        run_name=f"{run_name}-eval",
-        Model=type(q_net),
-        device=device,
-    )
+    # episodic_returns = evaluate(
+    #     model_path,
+    #     args.env_id,
+    #     eval_episode=10,
+    #     run_name=f"{run_name}-eval",
+    #     Model=type(q_net),
+    #     device=device,
+    # )
 
-    for idx, episodic_return in enumerate(episodic_returns):
-        writer.add_scalar("eval/episodic_return", episodic_return, idx)
+    # for idx, episodic_return in enumerate(episodic_returns):
+    #     writer.add_scalar("eval/episodic_return", episodic_return, idx)
 
     envs.close()
     writer.close()
