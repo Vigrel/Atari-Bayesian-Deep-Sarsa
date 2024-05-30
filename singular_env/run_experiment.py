@@ -12,6 +12,10 @@ from make_env import make_env
 
 def run_experiment(algorithm, args):
     run_name = f"{algorithm.__name__}__{args.env_id}__{args.seed}"
+    if args.bayesian_log:
+        run_name = (
+            f"{algorithm.__name__}__{args.bayesian_log}__{args.env_id}__{args.seed}"
+        )
 
     writer = SummaryWriter(f"runs/{run_name}")
     writer.add_text(

@@ -17,6 +17,7 @@ class ExperimentArgs:
     tau: float = 1.0
     batch_size: int = 32
     seed: int = 42
-    num_envs = 1
-    eval_episodes = 10
-    eval_frequency = 50000
+    num_envs: int = 1
+    eval_episodes: int = 10
+    eval_frequency: int = 50000
+    bayesian_log: int = 0
